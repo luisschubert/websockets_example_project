@@ -16,16 +16,28 @@ using websocket_stream = websocket::stream<tcp::socket>;
 int main() {
     boost::asio::io_context ioc;
     tcp::resolver resolver(ioc);
-    
+
     std::cout << "[Client] resolve with localhost 8080\n";
     auto const results = resolver.resolve("localhost", "8080");
     websocket_stream ws(ioc);
-
-    std::cout << "[Client] connect with localhost\n";
-    auto ep = boost::asio::connect(ws.next_layer(), results);
     
-    std::cout << "[Client] Handshake with localhost\n";
-    ws.handshake("localhost", "/");
+    bool connected = false;
+
+    // Keep attempting to connect until successful
+    while (!connected) {
+        try {
+            std::cout << "[Client] connect with localhost\n";
+            auto ep = boost::asio::connect(ws.next_layer(), results);
+            std::cout << "[Client] Handshake with localhost\n";
+            ws.handshake("localhost", "/");
+            // ws.handshake("server", "/");
+            connected = true;
+        } catch (const std::exception& e) {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+    }
+
+
 
     std::cout << "[Client] Writing Heartbeat Period Request\n";
     ws.write(boost::asio::buffer(json{{}}.dump()));
@@ -41,7 +53,7 @@ int main() {
     for (;;) {
         auto period_in_seconds = std::chrono::seconds(period);
 
-        std::cout << "[Client] Sleeping for "  << period_in_seconds "\n";
+        std::cout << "[Client] Sleeping for "  << period << "\n";
         std::this_thread::sleep_for(period_in_seconds);
         std::cout << "[Client] Done Sleeping\n";
 
