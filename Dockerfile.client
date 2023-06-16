@@ -1,0 +1,21 @@
+FROM ubuntu:20.04
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    g++ \
+    cmake \
+    libboost-all-dev \
+    wget
+
+# Download nlohmann::json
+RUN wget -P /usr/include https://github.com/nlohmann/json/releases/download/v3.9.1/json.hpp
+
+# Copy CMakeLists.txt and source code into the Docker image
+COPY . /app
+WORKDIR /app
+
+# Build the client
+RUN mkdir build && cd build && cmake .. && make websocket_example_client
+
+# Run the client
+CMD ["./build/websocket_example_client"]
