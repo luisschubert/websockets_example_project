@@ -20,6 +20,14 @@ docker run -it --link websocket_server websocket_example_client
 ```
 
 
+^ above is legacy.
+
+better way is with docker compose:
+added `docker-compose.yml`
+```bash
+docker-compose up
+`
+
 ```
 In the example, I'm assuming the JSON messages have the following structure:
 
