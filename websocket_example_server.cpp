@@ -4,6 +4,7 @@
 #include <boost/asio/strand.hpp>
 #include <boost/asio/io_context.hpp>
 #include <thread>
+#include <iostream>
 #include "json.hpp"
 
 using json = nlohmann::json;
