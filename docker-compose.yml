@@ -13,5 +13,3 @@ services:
       dockerfile: Dockerfile.client
     depends_on:
       - server
-    ports:
-      - "8080:8080"
