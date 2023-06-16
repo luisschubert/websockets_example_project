@@ -43,7 +43,7 @@ int main() {
 
 
     std::cout << "[Client] Writing Heartbeat Period Request\n";
-    ws.write(boost::asio::buffer(json{{}}.dump()));
+    ws.write(boost::asio::buffer(json({}).dump()));
     std::cout << "[Client] Wrote Heartbeat Period Request\n";
 
     boost::beast::multi_buffer buffer;
@@ -51,19 +51,46 @@ int main() {
     ws.read(buffer);
     std::cout << "[Client] Got Heartbeat Period Response\n";
 
+    auto msg = json::parse(json{{"a", 1}}.dump()); 
+    std::cout << msg << std::endl;
+    std::cout << msg.empty() << std::endl;
+    std::cout << msg["a"] << std::endl;
+
+    json empty_object_implicit = json({});
+    std::cout << empty_object_implicit << std::endl;
+    std::cout << empty_object_implicit.empty() << std::endl;
+
+    json empty_object_explicit = json::object();
+    std::cout << empty_object_explicit << std::endl;
+    std::cout << empty_object_explicit.empty() << std::endl;
+
+    json empty_array_explicit = json::array();
+    std::cout << empty_array_explicit << std::endl;
+    std::cout << empty_array_explicit.empty() << std::endl;
+
+    auto nothing_msg = json::parse(
+        boost::beast::buffers_to_string(
+            boost::asio::buffer(
+                json{{}}.dump()
+            )
+        )
+    );
+    std::cout << nothing_msg << std::endl;
+    std::cout << nothing_msg.empty() << std::endl;
+
+    // auto nothing_msg_1 = json::parse(NULL);
+    // std::cout << nothing_msg_1 << std::endl;
+    // std::cout << nothing_msg_1.empty() << std::endl;
+
+    // auto nothing_msg_2 = json::parse({[]});
+    // std::cout << nothing_msg_2 << std::endl;
+    // std::cout << nothing_msg_2.empty() << std::endl;
+
+
     try {
-        auto buffer_data = buffer.data();
-        std::size_t total_size = 0;
-        for (const auto& buffer_entry : buffer_data)
-        {
-            total_size += buffer_entry.size();
-        }
-        std::cout << "buffer_data: " << total_size << " bytes" << std::endl;
-        // std::cout << "buffer_data: " << buffer_data.size() << " bytes" << std::endl;
-        auto buffer_as_string = boost::beast::buffers_to_string(buffer_data);
-        std::cout << "buffer_as_string: " << buffer_as_string << std::endl;
-        auto buffer_parsed = json::parse(buffer_as_string);
-        std::cout << "buffer_parsed (type: " << typeid(buffer_parsed).name() << "): " << buffer_parsed << std::endl;
+        auto buffer_parsed = json::parse(boost::beast::buffers_to_string(buffer.data()));
+        std::cout << buffer_parsed << std::endl;
+        std::cout << buffer_parsed.empty() << std::endl;
         auto period = buffer_parsed["period"];
         for (;;) {
             auto period_in_seconds = std::chrono::seconds(period);
@@ -73,15 +100,15 @@ int main() {
             std::cout << "[Client] Done Sleeping\n";
 
             std::cout << "[Client] Writing Heartbeat Request \n";
-            ws.write(boost::asio::buffer(json{{"client_id", "client_number_1"}}.dump()));
+            ws.write(boost::asio::buffer(json({"client_id", "client_number_1"}).dump()));
             std::cout << "[Client] Wrote Heartbeat Request\n";
 
             ws.read(buffer);
             std::cout << "[Client] Got Heartbeat Response\n";
         }
     } catch (const std::exception& e) {
-            std::cout << "[Client] loop" << e.what() <<"\n";
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::cout << "[Client] loop" << e.what() <<"\n";
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
 

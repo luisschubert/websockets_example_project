@@ -28,30 +28,34 @@ int main() {
 
         std::cout << "[Server] std::thread([socket = std::move(socket)]()\n";
         std::thread([socket = std::move(socket)]() mutable {
+            try {
+                std::cout << "[Server] websocket_stream ws(std::move(socket));\n";
+                websocket_stream ws(std::move(socket));
 
-            std::cout << "[Server] websocket_stream ws(std::move(socket));\n";
-            websocket_stream ws(std::move(socket));
+                std::cout << "[Server] ws.accept();\n";
+                ws.accept();
 
-            std::cout << "[Server] ws.accept();\n";
-            ws.accept();
+                for (;;) {
+                    boost::beast::multi_buffer buffer;
+                    std::cout << "[Server] ws.read(buffer);\n";
+                    ws.read(buffer);
 
-            for (;;) {
-                boost::beast::multi_buffer buffer;
-                std::cout << "[Server] ws.read(buffer);\n";
-                ws.read(buffer);
+                    std::cout << "[Server] auto msg = json::parse(boost::beast::buffers_to_string(buffer.data()));\n";
 
-                std::cout << "[Server] auto msg = json::parse(boost::beast::buffers_to_string(buffer.data()));\n";
-
-                auto msg = json::parse(boost::beast::buffers_to_string(buffer.data()));
-                if (msg.empty()) {
-                    // HeartbeatPeriodRequest
-                    std::cout << "[Server] write HeartbeatPeriodRequest\n";
-                    ws.write(boost::asio::buffer(json{{"period", 100}}.dump()));
-                } else {
-                    // HeartbeatRequest
-                    std::cout << "[Server] write HeartbeatRequest\n";
-                    ws.write(boost::asio::buffer(json{{}}.dump()));
+                    auto msg = json::parse(boost::beast::buffers_to_string(buffer.data()));
+                    if (msg.empty()) {
+                        // HeartbeatPeriodRequest
+                        std::cout << "[Server] write HeartbeatPeriodRequest\n";
+                        ws.write(boost::asio::buffer(json({"period", 100}).dump()));
+                    } else {
+                        // HeartbeatRequest
+                        std::cout << "[Server] write HeartbeatRequest\n";
+                        ws.write(boost::asio::buffer(json({}).dump()));
+                    }
                 }
+            } catch (const std::exception& e) {
+                std::cout << "[Server] thread" << e.what() <<"\n";
+                std::this_thread::sleep_for(std::chrono::seconds(1));
             }
         }).detach();
     }
