@@ -14,10 +14,10 @@ using websocket_stream = websocket::stream<tcp::socket>;
 int main() {
     boost::asio::io_context ioc;
     tcp::resolver resolver(ioc);
-    auto const results = resolver.resolve("127.0.0.1", "8080");
+    auto const results = resolver.resolve("localhost", "8080");
     websocket_stream ws(ioc);
     auto ep = boost::asio::connect(ws.next_layer(), results);
-    ws.handshake(ep, "/");
+    ws.handshake("localhost", "/");
     ws.write(boost::asio::buffer(json{{}}.dump()));
 
     boost::beast::multi_buffer buffer;
