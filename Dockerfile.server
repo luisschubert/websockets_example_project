@@ -16,6 +16,8 @@ RUN wget -P /usr/include https://github.com/nlohmann/json/releases/download/v3.9
 COPY . /app
 WORKDIR /app
 
+EXPOSE 8080
+
 # Build the server
 RUN mkdir build && cd build && cmake .. && make websocket_example_server
 
