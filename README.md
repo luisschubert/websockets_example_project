@@ -26,7 +26,16 @@ better way is with docker compose:
 added `docker-compose.yml`
 ```bash
 docker-compose up
-`
+```
+if you need to rebuild add `--build`.
+and if you want the console back add `-d`.
+
+to see logs for the containers:
+`docker-compose logs -f server`
+`docker-compose logs -f client`
+
+and to bring them down:
+`docker-compose down`
 
 ```
 In the example, I'm assuming the JSON messages have the following structure:
