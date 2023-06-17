@@ -1,0 +1,25 @@
+FROM ubuntu:20.04
+
+RUN ln -snf /usr/share/zoneinfo/$CONTAINER_TIMEZONE /etc/localtime && echo $CONTAINER_TIMEZONE > /etc/timezone
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    g++ \
+    cmake \
+    libboost-all-dev \
+    wget
+
+# Download nlohmann::json
+RUN wget -P /usr/include https://github.com/nlohmann/json/releases/download/v3.9.1/json.hpp
+
+# Copy CMakeLists.txt and source code into the Docker image
+COPY . /app
+WORKDIR /app
+
+EXPOSE 8080
+
+# Build the server
+RUN mkdir build && cd build && cmake .. && make websocket_example_server
+
+# Run the server
+CMD ["./build/websocket_example_server"]
