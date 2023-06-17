@@ -15,6 +15,59 @@ using tcp = boost::asio::ip::tcp;
 namespace websocket = boost::beast::websocket;
 using websocket_stream = websocket::stream<tcp::socket>;
 
+
+void print_different_json_formats()
+{
+    auto msg = json::parse(json{{"a", 1}}.dump());
+    std::cout << "json::parse(json({\"a\", 1}).dump())" << std::endl;
+    std::cout << msg                            << std::endl;
+    std::cout << msg.empty()                    << std::endl;
+    std::cout << msg["a"]                       << std::endl << std::endl;
+
+    json empty_object_implicit = json({});
+    std::cout << "json({});"                    << std::endl;
+    std::cout << empty_object_implicit          << std::endl;
+    std::cout << empty_object_implicit.empty()  << std::endl << std::endl;
+
+    json empty_object_explicit = json::object();
+    std::cout << "json::object();"              << std::endl;
+    std::cout << empty_object_explicit          << std::endl;
+    std::cout << empty_object_explicit.empty()  << std::endl << std::endl;
+
+    json empty_array_explicit = json::array();
+    std::cout << "json::array();"               << std::endl;
+    std::cout << empty_array_explicit           << std::endl;
+    std::cout << empty_array_explicit.empty()   << std::endl << std::endl;
+
+    auto nothing_msg = json::parse(boost::beast::buffers_to_string(boost::asio::buffer(json{{}}.dump())));
+    std::cout << "auto nothing_msg = json::parse(boost::beast::buffers_to_string(boost::asio::buffer(json{{}}.dump())));"                    << std::endl;
+    std::cout << nothing_msg                    << std::endl;
+    std::cout << nothing_msg.empty()            << std::endl << std::endl;
+
+    auto nothing_msg_1 = json::parse(boost::beast::buffers_to_string(boost::asio::buffer(json{{"abc","def"}}.dump())));
+    std::cout << "auto nothing_msg_1 = json::parse(boost::beast::buffers_to_string(boost::asio::buffer(json{{\"abc\",\"def\"}}.dump())));"                    << std::endl;
+    std::cout << nothing_msg_1                    << std::endl;
+    std::cout << nothing_msg_1.empty()            << std::endl << std::endl;
+
+    auto nothing_msg_2 = json::parse(boost::beast::buffers_to_string(boost::asio::buffer(json({}).dump())));
+    std::cout << "auto nothing_msg_2 = json::parse(boost::beast::buffers_to_string(boost::asio::buffer(json({}).dump())));"                    << std::endl;
+    std::cout << nothing_msg_2                    << std::endl;
+    std::cout << nothing_msg_2.empty()            << std::endl << std::endl;
+
+    auto nothing_msg_3 = json::parse(boost::beast::buffers_to_string(boost::asio::buffer(json::object().dump())));
+    std::cout << "auto nothing_msg_3 = json::parse(boost::beast::buffers_to_string(boost::asio::buffer(json::object().dump())));"                    << std::endl;
+    std::cout << nothing_msg_3                    << std::endl;
+    std::cout << nothing_msg_3.empty()            << std::endl << std::endl;
+
+    // auto nothing_msg_1 = json::parse(NULL);
+    // std::cout << nothing_msg_1 << std::endl;
+    // std::cout << nothing_msg_1.empty() << std::endl;
+
+    // auto nothing_msg_2 = json::parse({[]});
+    // std::cout << nothing_msg_2 << std::endl;
+    // std::cout << nothing_msg_2.empty() << std::endl;
+}
+
 int main() {
     boost::asio::io_context ioc;
     tcp::resolver resolver(ioc);
@@ -40,8 +93,6 @@ int main() {
         }
     }
 
-
-
     std::cout << "[Client] Writing Heartbeat Period Request\n";
     ws.write(boost::asio::buffer(json({}).dump()));
     std::cout << "[Client] Wrote Heartbeat Period Request\n";
@@ -50,42 +101,7 @@ int main() {
     
     ws.read(buffer);
     std::cout << "[Client] Got Heartbeat Period Response\n";
-
-    auto msg = json::parse(json{{"a", 1}}.dump()); 
-    std::cout << msg << std::endl;
-    std::cout << msg.empty() << std::endl;
-    std::cout << msg["a"] << std::endl;
-
-    json empty_object_implicit = json({});
-    std::cout << empty_object_implicit << std::endl;
-    std::cout << empty_object_implicit.empty() << std::endl;
-
-    json empty_object_explicit = json::object();
-    std::cout << empty_object_explicit << std::endl;
-    std::cout << empty_object_explicit.empty() << std::endl;
-
-    json empty_array_explicit = json::array();
-    std::cout << empty_array_explicit << std::endl;
-    std::cout << empty_array_explicit.empty() << std::endl;
-
-    auto nothing_msg = json::parse(
-        boost::beast::buffers_to_string(
-            boost::asio::buffer(
-                json{{}}.dump()
-            )
-        )
-    );
-    std::cout << nothing_msg << std::endl;
-    std::cout << nothing_msg.empty() << std::endl;
-
-    // auto nothing_msg_1 = json::parse(NULL);
-    // std::cout << nothing_msg_1 << std::endl;
-    // std::cout << nothing_msg_1.empty() << std::endl;
-
-    // auto nothing_msg_2 = json::parse({[]});
-    // std::cout << nothing_msg_2 << std::endl;
-    // std::cout << nothing_msg_2.empty() << std::endl;
-
+    // print_different_json_formats();
 
     try {
         auto buffer_parsed = json::parse(boost::beast::buffers_to_string(buffer.data()));
@@ -100,7 +116,7 @@ int main() {
             std::cout << "[Client] Done Sleeping\n";
 
             std::cout << "[Client] Writing Heartbeat Request \n";
-            ws.write(boost::asio::buffer(json({"client_id", "client_number_1"}).dump()));
+            ws.write(boost::asio::buffer(json{{"client_id", "client_number_1"}}.dump()));
             std::cout << "[Client] Wrote Heartbeat Request\n";
 
             ws.read(buffer);

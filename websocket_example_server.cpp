@@ -46,7 +46,7 @@ int main() {
                     if (msg.empty()) {
                         // HeartbeatPeriodRequest
                         std::cout << "[Server] write HeartbeatPeriodRequest\n";
-                        ws.write(boost::asio::buffer(json({"period", 100}).dump()));
+                        ws.write(boost::asio::buffer(json{{"period", 10}}.dump()));
                     } else {
                         // HeartbeatRequest
                         std::cout << "[Server] write HeartbeatRequest\n";
